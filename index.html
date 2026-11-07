@@ -117,6 +117,7 @@ footer a { color: var(--muted); font-size: 13px; }
 			<button type="button" class="small secondary" id="mode-btn">Войти по ID Gist и токену</button>
 			<button type="button" class="small secondary" id="create-open">Создать логин и пароль</button>
 		</div>
+		<div class="buttons not-app"><a class="btn secondary" href="app/HomeNet.apk" download>📱 Скачать приложение для Android</a></div>
 	</section>
 
 	<section id="create" class="card hidden">
@@ -242,6 +243,17 @@ footer a { color: var(--muted); font-size: 13px; }
 		<section data-tab="log" class="hidden">
 			<h2>Журнал Xiaomi</h2>
 			<div class="card list"><ul id="events"></ul></div>
+			<h2>Приложение</h2>
+			<div class="card">
+				<div class="row in-app hidden">
+					<span id="app-version" class="muted"></span>
+					<button class="small secondary" id="update-btn">Проверить обновления</button>
+				</div>
+				<div class="not-app">
+					<div class="muted">Приложение для Android: уведомления, когда VPN падает или кончается подписка, и виджет на рабочий стол.</div>
+					<div class="buttons"><a class="btn" href="app/HomeNet.apk" download>📱 Скачать приложение</a></div>
+				</div>
+			</div>
 			<footer><a href="#" id="logout">Выйти (забыть данные на этом устройстве)</a></footer>
 		</section>
 	</div>
@@ -722,6 +734,14 @@ $("logout").onclick = (e) => {
 document.addEventListener("visibilitychange", () => { if (!document.hidden && S.gist) refresh(); });
 
 if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+
+// Внутри Android-приложения: версия и кнопка обновления вместо ссылок на скачивание
+if (window.HomeNetApp) {
+	document.querySelectorAll(".not-app").forEach((e) => e.classList.add("hidden"));
+	document.querySelectorAll(".in-app").forEach((e) => e.classList.remove("hidden"));
+	try { $("app-version").textContent = "Версия " + (HomeNetApp.version ? HomeNetApp.version() : "1.0"); } catch (e) {}
+	$("update-btn").onclick = () => (HomeNetApp.checkUpdate ? HomeNetApp.checkUpdate() : toast("Скачайте новую версию с сайта"));
+}
 
 // ID можно передать после # (не уходит на сервер)
 const fromHash = location.hash.slice(1);
