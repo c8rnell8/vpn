@@ -18,58 +18,74 @@
 	}
 }
 * { box-sizing: border-box; }
-body {
-	margin: 0; background: var(--bg); color: var(--text);
-	font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-main { max-width: 640px; margin: 0 auto; padding: 20px 16px 40px; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 680px; margin: 0 auto; padding: 18px 16px 48px; }
 h1 { font-size: 22px; margin: 4px 0 16px; display: flex; align-items: center; gap: 10px; }
-h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 24px 0 8px; }
+h1 .ro { margin-left: auto; font-size: 12px; font-weight: 500; }
+h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 26px 0 8px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .muted { color: var(--muted); font-size: 13px; }
-.big { font-size: 18px; font-weight: 600; }
-.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.big { font-size: 19px; font-weight: 650; }
 .good { color: var(--good); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
 .bg-good { background: var(--good); } .bg-warn { background: var(--warn); } .bg-bad { background: var(--bad); }
 ul { list-style: none; margin: 0; padding: 0; }
-li { padding: 12px 16px; border-top: 1px solid var(--line); }
-li:first-child { border-top: none; }
 .list { padding: 0; }
+.list li { padding: 12px 16px; border-top: 1px solid var(--line); }
+.list li:first-child { border-top: none; }
 .name { font-weight: 500; overflow-wrap: anywhere; }
-.chip { background: var(--chip); border-radius: 6px; padding: 1px 7px; font-size: 12px; color: var(--muted); margin-left: 6px; }
+.chip { background: var(--chip); border-radius: 6px; padding: 1px 7px; font-size: 12px; color: var(--muted); margin-left: 6px; white-space: nowrap; }
+.tag { font-size: 12px; font-weight: 600; margin-left: 6px; white-space: nowrap; }
+.tag.now { color: var(--accent); }
 .ms { font-variant-numeric: tabular-nums; font-size: 14px; white-space: nowrap; }
-.now { font-size: 12px; color: var(--accent); font-weight: 600; margin-left: 6px; }
+.right { display: flex; align-items: center; gap: 8px; flex: none; }
 button, .btn {
-	appearance: none; border: 0; border-radius: 10px; padding: 11px 16px; font: inherit; font-weight: 600;
-	cursor: pointer; background: var(--accent); color: #fff; text-decoration: none; display: inline-block; text-align: center;
+	appearance: none; border: 0; border-radius: 10px; padding: 11px 14px; font: inherit; font-weight: 600; cursor: pointer;
+	background: var(--accent); color: #fff; text-decoration: none; display: inline-block; text-align: center;
 }
-.btn.secondary, button.secondary { background: var(--chip); color: var(--text); }
+button.secondary, .btn.secondary { background: var(--chip); color: var(--text); }
+button.danger { background: var(--chip); color: var(--bad); }
+button.small { padding: 6px 10px; font-size: 13px; border-radius: 8px; }
+button:disabled { opacity: .5; cursor: default; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
 .buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .buttons > * { flex: 1 1 140px; }
-input {
-	width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line);
-	background: var(--bg); color: var(--text); font: inherit;
-}
+input { width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; }
+label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; }
 #qr { display: flex; justify-content: center; margin-top: 14px; }
-#qr img, #qr svg { background: #fff; padding: 10px; border-radius: 12px; width: 220px; height: 220px; image-rendering: pixelated; }
+#qr svg { background: #fff; padding: 10px; border-radius: 12px; width: 220px; height: 220px; }
 .hidden { display: none !important; }
 .link { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; margin-top: 8px; }
 .err { color: var(--bad); margin-top: 10px; }
-footer { margin-top: 28px; text-align: center; }
+.ev { display: flex; gap: 10px; font-size: 14px; }
+.ev time { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 13px; padding-top: 1px; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14px; }
+.kv span:nth-child(odd) { color: var(--muted); }
+.switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+#toast {
+	position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); max-width: calc(100% - 32px);
+	background: var(--text); color: var(--bg); padding: 12px 16px; border-radius: 12px; font-size: 14px;
+	box-shadow: 0 8px 24px rgba(0,0,0,.25); z-index: 10;
+}
+.pending { margin-top: 12px; font-size: 14px; }
+footer { margin-top: 30px; text-align: center; }
 footer a { color: var(--muted); font-size: 13px; }
 </style>
 </head>
 <body>
 <main>
-	<h1>🛡️ Домашний VPN</h1>
+	<h1>🛡️ Домашний VPN <span class="ro muted hidden" id="ro-badge">только просмотр</span></h1>
 
 	<section id="setup" class="card hidden">
 		<div class="big">Вход</div>
-		<p class="muted">Введите ID вашего Gist. Он сохранится только в этом браузере.</p>
+		<p class="muted">Данные сохраняются только в этом браузере. Без токена сайт работает в режиме просмотра.</p>
 		<form id="setup-form">
+			<label for="gist-input">ID Gist</label>
 			<input id="gist-input" placeholder="например 0123456789abcdef0123456789abcdef" autocomplete="off" spellcheck="false">
-			<div class="buttons"><button type="submit">Открыть</button></div>
+			<label for="token-input">Токен GitHub (для управления)</label>
+			<input id="token-input" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+			<div class="buttons"><button type="submit">Войти</button></div>
 		</form>
 		<div id="setup-err" class="err hidden"></div>
 	</section>
@@ -78,51 +94,96 @@ footer a { color: var(--muted); font-size: 13px; }
 		<div class="card">
 			<div class="row">
 				<div>
-					<div class="muted">Роутер сейчас на сервере</div>
-					<div class="big" id="current">—</div>
+					<div class="big" id="vpn-state">—</div>
+					<div class="muted" id="vpn-detail"></div>
 				</div>
 				<span class="dot" id="state-dot"></span>
 			</div>
-			<div class="muted" id="updated" style="margin-top:8px"></div>
+			<div class="muted" id="heartbeat" style="margin-top:10px"></div>
+			<div class="pending hidden" id="pending"></div>
+		</div>
+
+		<div id="controls">
+			<h2>Управление</h2>
+			<div class="card">
+				<div class="grid">
+					<button data-cmd="reselect">⚡ Подобрать лучший сервер</button>
+					<button data-cmd="update" class="secondary">🔄 Обновить подписки</button>
+					<button data-cmd="restart" class="secondary">♻️ Перезапустить VPN</button>
+					<button data-cmd="rollback" class="secondary" data-confirm="Вернуть последние настройки, на которых VPN работал?">↩️ Откатить настройки</button>
+					<button data-cmd="reboot" class="danger" data-confirm="Перезагрузить роутер? Интернет пропадёт примерно на 3 минуты.">🔁 Перезагрузить роутер</button>
+				</div>
+				<div class="switch">
+					<div>
+						<div class="name">Резерв из бесплатных серверов</div>
+						<div class="muted">Используется, только если все платные серверы не работают</div>
+					</div>
+					<button class="small secondary" id="free-btn">—</button>
+				</div>
+			</div>
 		</div>
 
 		<h2>Серверы</h2>
 		<div class="card list"><ul id="nodes"></ul></div>
-		<p class="muted">Задержка измерена роутером из дома. «Не отвечает» — сервер недоступен через домашнего провайдера; с мобильной сети он может работать, Happ проверит сам.</p>
+		<p class="muted" id="nodes-note"></p>
+
+		<h2>Подписки</h2>
+		<div class="card list"><ul id="subs"></ul></div>
+		<form id="add-form" class="card" style="margin-top:8px">
+			<label for="sub-input" style="margin-top:0">Добавить подписку — вставьте ссылку от провайдера VPN</label>
+			<input id="sub-input" placeholder="https://…" autocomplete="off" spellcheck="false">
+			<div class="buttons"><button type="submit">Добавить</button></div>
+		</form>
 
 		<h2>Подписка для Happ</h2>
 		<div class="card">
-			<div class="muted">Одна ссылка на все серверы. В ней пункт «⚡ Авто» сам выбирает лучший сервер.</div>
+			<div class="muted">Одна ссылка на все платные серверы. Пункт «⚡ Авто» сам выбирает лучший.</div>
 			<div class="buttons">
 				<a class="btn" id="happ-btn">Добавить в Happ</a>
-				<button class="secondary" id="copy-btn" type="button">Скопировать ссылку</button>
+				<button class="secondary" id="copy-btn" type="button">Скопировать</button>
 				<button class="secondary" id="qr-btn" type="button">QR-код</button>
 			</div>
 			<div id="qr" class="hidden"></div>
 			<div class="link hidden" id="link"></div>
 		</div>
 
-		<footer><a href="#" id="logout">Выйти (забыть ID на этом устройстве)</a></footer>
+		<h2>Журнал роутера</h2>
+		<div class="card list"><ul id="events"></ul></div>
+
+		<h2>Роутер</h2>
+		<div class="card"><div class="kv" id="system"></div></div>
+
+		<footer><a href="#" id="logout">Выйти (забыть данные на этом устройстве)</a></footer>
 	</section>
+	<div id="toast" class="hidden"></div>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
-const KEY = "vpn-gist-id";
 const USER = "c8rnell8";
 const $ = (id) => document.getElementById(id);
+const S = { gist: null, token: null, status: null, pending: null, timer: null };
+const LOCKABLE = "#controls button, .node-btn, .sub-del, #add-form button";
 
-function store(op, value) {
-	try {
-		if (op === "get") return localStorage.getItem(KEY);
-		if (op === "set") localStorage.setItem(KEY, value);
-		if (op === "del") localStorage.removeItem(KEY);
-	} catch (e) { /* приватный режим — живём без памяти */ }
-	return null;
+const store = {
+	get(k) { try { return localStorage.getItem("vpn-" + k); } catch (e) { return null; } },
+	set(k, v) { try { localStorage.setItem("vpn-" + k, v); } catch (e) {} },
+	del(k) { try { localStorage.removeItem("vpn-" + k); } catch (e) {} },
+};
+
+function el(tag, cls, text) {
+	const e = document.createElement(tag);
+	if (cls) e.className = cls;
+	if (text != null) e.textContent = text;
+	return e;
 }
-
-function rawUrl(id, file) { return `https://gist.githubusercontent.com/${USER}/${id}/raw/${file}`; }
-
+function toast(text, ms = 4000) {
+	const t = $("toast");
+	t.textContent = text;
+	t.classList.remove("hidden");
+	clearTimeout(toast.t);
+	toast.t = setTimeout(() => t.classList.add("hidden"), ms);
+}
 function ago(ts) {
 	const min = Math.round((Date.now() / 1000 - ts) / 60);
 	if (min < 1) return "только что";
@@ -130,43 +191,196 @@ function ago(ts) {
 	const h = Math.floor(min / 60);
 	return h < 24 ? `${h} ч ${min % 60} мин назад` : `${Math.floor(h / 24)} дн назад`;
 }
+function dur(sec) {
+	const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60);
+	return d ? `${d} дн ${h} ч` : h ? `${h} ч ${m} мин` : `${m} мин`;
+}
+const fmtTime = (ts) => new Date(ts * 1000).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+const fmtDate = (ts) => new Date(ts * 1000).toLocaleDateString("ru-RU");
+const msClass = (ms) => ms == null ? "bad" : ms < 700 ? "good" : ms < 1500 ? "warn" : "bad";
+const rawUrl = (file) => `https://gist.githubusercontent.com/${USER}/${S.gist}/raw/${file}`;
+const lock = (on) => document.querySelectorAll(LOCKABLE).forEach((b) => (b.disabled = on));
 
-function msClass(ms) { return ms == null ? "bad" : ms < 700 ? "good" : ms < 1500 ? "warn" : "bad"; }
+// ── GitHub API
+async function api(method, body) {
+	const r = await fetch(`https://api.github.com/gists/${S.gist}`, {
+		method,
+		cache: "no-store",
+		headers: Object.assign({ Accept: "application/vnd.github+json" },
+			S.token ? { Authorization: "Bearer " + S.token } : {},
+			body ? { "Content-Type": "application/json" } : {}),
+		body: body ? JSON.stringify(body) : undefined,
+	});
+	if (!r.ok) throw new Error(r.status === 401 || r.status === 403 ? "токен не подходит" : r.status === 404 ? "Gist не найден" : "GitHub ответил " + r.status);
+	return r.json();
+}
 
-function render(status, id) {
-	const alive = status.nodes.filter((n) => n.ms != null).length;
-	const stale = Date.now() / 1000 - status.updated > 3 * 3600;
-	$("current").textContent = status.current || "—";
-	$("state-dot").className = "dot " + (stale || alive === 0 ? "bg-bad" : alive === 1 ? "bg-warn" : "bg-good");
-	$("updated").innerHTML = `Обновлено ${ago(status.updated)} · работает из дома: <b class="${alive ? "good" : "bad"}">${alive} из ${status.nodes.length}</b>` +
-		(stale ? ` · <span class="bad">роутер давно не присылал статус</span>` : "");
+async function fetchStatus() {
+	if (S.token) {
+		const g = await api("GET");
+		const f = g.files["status.json"];
+		if (!f) throw new Error("роутер ещё не прислал статус");
+		const content = f.truncated ? await (await fetch(f.raw_url, { cache: "no-store" })).text() : f.content;
+		return JSON.parse(content);
+	}
+	const r = await fetch(rawUrl("status.json") + "?t=" + Date.now(), { cache: "no-store" });
+	if (!r.ok) throw new Error(r.status === 404 ? "Gist не найден" : "не удалось загрузить статус");
+	return r.json();
+}
 
+async function sendCommand(action, arg, label) {
+	if (!S.token) return toast("Для управления нужен токен — выйдите и войдите с ним");
+	if (S.pending) return toast("Подождите — предыдущая команда ещё выполняется");
+	try {
+		const g = await api("GET");
+		let cmds = [];
+		try { cmds = JSON.parse((g.files["commands.json"] || {}).content || "[]"); } catch (e) {}
+		const id = Date.now();
+		cmds.push({ id, action, arg: arg || "" });
+		cmds = cmds.slice(-20);
+		await api("PATCH", { files: { "commands.json": { content: JSON.stringify(cmds, null, 1) } } });
+		S.pending = { id: String(id), label, since: Date.now() };
+		showPending();
+		toast("Команда отправлена роутеру");
+		poll(15000);
+	} catch (e) {
+		toast("Не получилось отправить: " + e.message);
+	}
+}
+
+function showPending() {
+	const p = $("pending");
+	if (!S.pending) return p.classList.add("hidden");
+	const sec = Math.round((Date.now() - S.pending.since) / 1000);
+	p.innerHTML = "";
+	p.append(el("span", "warn", `⏳ ${S.pending.label}: ждём роутер (${sec} с). Он забирает команды раз в 2 минуты.`));
+	p.classList.remove("hidden");
+	lock(true);
+}
+
+function checkPending(status) {
+	if (!S.pending) return;
+	const res = (status.results || []).find((r) => r.id === S.pending.id);
+	if (res) {
+		toast((res.ok ? "✅ " : "⚠️ ") + res.text, 7000);
+		S.pending = null;
+	} else if (Date.now() - S.pending.since > 15 * 60 * 1000) {
+		toast("Роутер не ответил за 15 минут. Возможно, он выключен или без интернета.", 8000);
+		S.pending = null;
+	}
+	if (!S.pending) {
+		$("pending").classList.add("hidden");
+		lock(false);
+	}
+}
+
+// ── отрисовка
+function render(st) {
+	const now = Date.now() / 1000;
+	const paid = st.nodes.filter((n) => n.group !== "free");
+	const alive = paid.filter((n) => n.ms != null).length;
+	const stale = now - st.updated > 45 * 60;
+	const ok = st.vpn && st.vpn.ok;
+
+	$("vpn-state").textContent = stale ? "Роутер не на связи" : ok ? "VPN работает" : "VPN не работает";
+	$("vpn-state").className = "big " + (stale || !ok ? "bad" : "good");
+	$("state-dot").className = "dot " + (stale || !ok ? "bg-bad" : alive > 1 ? "bg-good" : "bg-warn");
+	const detail = [];
+	if (st.current) detail.push("Сервер: " + st.current);
+	if (st.pinned) detail.push("📌 закреплён");
+	if (st.vpn && st.vpn.loc) detail.push(`выход: ${st.vpn.loc}${st.vpn.ip ? " · " + st.vpn.ip : ""}`);
+	if (!ok && st.vpn && st.vpn.down_since) detail.push("не работает " + ago(st.vpn.down_since).replace(" назад", ""));
+	$("vpn-detail").textContent = detail.join(" · ");
+	$("heartbeat").textContent = `Роутер на связи ${ago(st.updated)}` + (st.checked ? ` · серверы проверены ${ago(st.checked)}` : "") +
+		(stale ? " — данные могут быть устаревшими" : "");
+
+	// резерв
+	const fb = $("free-btn");
+	fb.textContent = st.free ? "Включён — выключить" : "Выключен — включить";
+	fb.onclick = () => sendCommand("free", st.free ? "off" : "on", st.free ? "Выключаем резерв" : "Включаем резерв");
+
+	// серверы
 	const ul = $("nodes");
 	ul.innerHTML = "";
-	for (const n of status.nodes) {
-		const li = document.createElement("li");
-		li.className = "row";
-		const left = document.createElement("div");
-		const name = document.createElement("span");
-		name.className = "name";
-		name.textContent = n.name;
-		left.append(name);
-		if (n.group) { const c = document.createElement("span"); c.className = "chip"; c.textContent = n.group; left.append(c); }
-		if (n.current) { const c = document.createElement("span"); c.className = "now"; c.textContent = "● сейчас"; left.append(c); }
-		const ms = document.createElement("span");
-		ms.className = "ms " + msClass(n.ms);
-		ms.textContent = n.ms == null ? "не отвечает" : `${n.ms} мс`;
-		li.append(left, ms);
+	for (const n of st.nodes) {
+		const li = el("li", "row");
+		const left = el("div");
+		left.append(el("span", "name", n.name));
+		if (n.group) left.append(el("span", "chip", n.group === "free" ? "бесплатный" : n.group));
+		if (n.current) left.append(el("span", "tag now", "● сейчас"));
+		if (n.pinned) left.append(el("span", "tag", "📌"));
+		const right = el("div", "right");
+		right.append(el("span", "ms " + msClass(n.ms), n.ms == null ? "не отвечает" : `${n.ms} мс`));
+		if (S.token) {
+			const b = el("button", "small secondary node-btn", n.pinned ? "Открепить" : "Закрепить");
+			b.onclick = () => n.pinned
+				? sendCommand("unpin", "", "Снимаем закрепление")
+				: confirm(`Всегда использовать «${n.name}», пока он работает?`) && sendCommand("pin", n.id, "Закрепляем сервер");
+			right.append(b);
+		}
+		li.append(left, right);
 		ul.append(li);
 	}
+	$("nodes-note").textContent = `Работают из дома: ${alive} платных из ${paid.length}. ` +
+		"«Не отвечает» — недоступен через домашнего провайдера; с мобильной сети в Happ может работать.";
 
-	const sub = rawUrl(id, "sub.json");
+	// подписки
+	const subs = $("subs");
+	subs.innerHTML = "";
+	for (const s of st.subs) {
+		const li = el("li", "row");
+		const left = el("div");
+		left.append(el("span", "name", s.name), el("span", "chip", `${s.nodes} серв.`));
+		const info = el("div", "muted", s.host);
+		if (s.expire) {
+			const days = Math.ceil((s.expire - now) / 86400);
+			info.append(el("span", days < 0 ? "bad" : days <= 7 ? "warn" : "good",
+				days < 0 ? ` · закончилась ${fmtDate(s.expire)}` : ` · до ${fmtDate(s.expire)} (${days} дн.)`));
+		} else info.append(document.createTextNode(" · срок неизвестен"));
+		left.append(info);
+		li.append(left);
+		if (S.token && s.removable) {
+			const b = el("button", "small danger sub-del", "Удалить");
+			b.onclick = () => confirm(`Удалить подписку «${s.name}» и её серверы?`) && sendCommand("del_sub", s.id, "Удаляем подписку");
+			li.append(b);
+		}
+		subs.append(li);
+	}
+
+	// журнал
+	const ev = $("events");
+	ev.innerHTML = "";
+	for (const e of (st.events || []).slice(0, 25)) {
+		const li = el("li", "ev");
+		li.append(el("time", null, fmtTime(e.t)), el("span", null, e.text));
+		ev.append(li);
+	}
+	if (!ev.children.length) ev.append(el("li", "muted", "Пока пусто"));
+
+	// система
+	const sys = st.system || {};
+	const kv = $("system");
+	kv.innerHTML = "";
+	const rows = [
+		["Без перезагрузки", sys.uptime ? dur(sys.uptime) : "—"],
+		["Свободно памяти", sys.mem_mb != null ? sys.mem_mb + " МБ" : "—"],
+		["Свободно флеша", sys.flash_free || "—"],
+		["Нагрузка", sys.load || "—"],
+		["Рабочие настройки сохранены", sys.good_config ? fmtTime(sys.good_config) : "нет"],
+	];
+	for (const [k, v] of rows) kv.append(el("span", null, k), el("span", null, v));
+
+	checkPending(st);
+	if (S.pending) showPending();
+}
+
+function setupHapp() {
+	const sub = rawUrl("sub.json");
 	$("link").textContent = sub;
 	$("happ-btn").href = "happ://add/" + sub;
 	$("copy-btn").onclick = async () => {
-		try { await navigator.clipboard.writeText(sub); $("copy-btn").textContent = "Скопировано ✓"; }
-		catch (e) { $("link").classList.remove("hidden"); $("copy-btn").textContent = "Скопируйте вручную ↓"; }
-		setTimeout(() => ($("copy-btn").textContent = "Скопировать ссылку"), 2500);
+		try { await navigator.clipboard.writeText(sub); toast("Ссылка скопирована"); }
+		catch (e) { $("link").classList.remove("hidden"); toast("Скопируйте ссылку вручную"); }
 	};
 	$("qr-btn").onclick = () => {
 		const box = $("qr");
@@ -180,37 +394,77 @@ function render(status, id) {
 	};
 }
 
-async function loadGist(id) {
-	id = (id || "").trim().replace(/^.*\//, "").replace(/[^0-9a-f]/gi, "");
-	if (!/^[0-9a-f]{20,40}$/i.test(id)) return showSetup("Похоже, это не ID Gist.");
+async function refresh() {
 	try {
-		const r = await fetch(rawUrl(id, "status.json") + "?t=" + Date.now(), { cache: "no-store" });
-		if (!r.ok) throw new Error(r.status);
-		const status = await r.json();
-		store("set", id);
+		S.status = await fetchStatus();
+		render(S.status);
+	} catch (e) {
+		toast("Не удалось обновить: " + e.message);
+	}
+}
+
+function poll(interval) {
+	clearInterval(S.timer);
+	S.timer = setInterval(async () => {
+		if (S.pending) showPending();
+		await refresh();
+		if (!S.pending && interval < 60000) poll(60000);  // команд нет — обновляемся раз в минуту
+	}, interval);
+}
+
+async function login(gist, token) {
+	gist = (gist || "").trim().replace(/^.*\//, "").replace(/[^0-9a-f]/gi, "");
+	token = (token || "").trim();
+	if (!/^[0-9a-f]{20,40}$/i.test(gist)) return showSetup("Похоже, это не ID Gist.");
+	S.gist = gist;
+	S.token = token || null;
+	try {
+		const status = await fetchStatus();
+		store.set("gist", gist);
+		token ? store.set("token", token) : store.del("token");
 		$("setup").classList.add("hidden");
 		$("app").classList.remove("hidden");
-		render(status, id);
+		$("ro-badge").classList.toggle("hidden", !!S.token);
+		$("controls").classList.toggle("hidden", !S.token);
+		$("add-form").classList.toggle("hidden", !S.token);
+		setupHapp();
+		S.status = status;
+		render(status);
+		poll(60000);
 	} catch (e) {
-		showSetup("Не получилось загрузить статус. Проверьте ID и что роутер уже прислал статус.");
+		S.gist = S.token = null;
+		showSetup("Не получилось войти: " + e.message);
 	}
 }
 
 function showSetup(err) {
+	clearInterval(S.timer);
 	$("app").classList.add("hidden");
 	$("setup").classList.remove("hidden");
 	$("setup-err").textContent = err || "";
 	$("setup-err").classList.toggle("hidden", !err);
 }
 
-$("setup-form").onsubmit = (e) => { e.preventDefault(); loadGist($("gist-input").value); };
-$("logout").onclick = (e) => { e.preventDefault(); store("del"); history.replaceState(null, "", location.pathname); showSetup(); };
+$("setup-form").onsubmit = (e) => { e.preventDefault(); login($("gist-input").value, $("token-input").value); };
+$("add-form").onsubmit = (e) => {
+	e.preventDefault();
+	const url = $("sub-input").value.trim();
+	if (!/^https?:\/\/\S+$/.test(url)) return toast("Вставьте ссылку, которая начинается с https://");
+	$("sub-input").value = "";
+	sendCommand("add_sub", url, "Добавляем подписку");
+};
+document.querySelectorAll("#controls [data-cmd]").forEach((b) => {
+	b.onclick = () => (!b.dataset.confirm || confirm(b.dataset.confirm)) && sendCommand(b.dataset.cmd, "", b.textContent.replace(/^\S+\s/, ""));
+});
+$("logout").onclick = (e) => { e.preventDefault(); store.del("gist"); store.del("token"); S.gist = S.token = null; showSetup(); };
+document.addEventListener("visibilitychange", () => { if (!document.hidden && S.gist) refresh(); });
 
-// ID можно передать в адресе после # — он не уходит на сервер
+// ID можно передать после # (не уходит на сервер)
 const fromHash = location.hash.slice(1);
-const saved = fromHash || store("get");
 if (fromHash) history.replaceState(null, "", location.pathname);
-saved ? loadGist(saved) : showSetup();
+const saved = fromHash || store.get("gist");
+// токен из памяти — только для того же Gist
+saved ? login(saved, !fromHash || fromHash === store.get("gist") ? store.get("token") : "") : showSetup();
 </script>
 </body>
 </html>
