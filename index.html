@@ -565,6 +565,7 @@ async function login(gist, token) {
 		const status = await fetchStatus();
 		store.set("gist", gist);
 		token ? store.set("token", token) : store.del("token");
+		if (window.HomeNetApp) HomeNetApp.saveGist(gist);  // Android-приложение: фоновая проверка и виджет
 		$("setup").classList.add("hidden");
 		$("app").classList.remove("hidden");
 		$("nav").classList.remove("hidden");
@@ -602,7 +603,12 @@ document.querySelectorAll("[data-cmd]").forEach((b) => {
 	b.onclick = () => (!b.dataset.confirm || confirm(b.dataset.confirm)) &&
 		sendCommand(b.dataset.cmd, b.dataset.arg || "", b.textContent.replace(/^\S+\s/, ""));
 });
-$("logout").onclick = (e) => { e.preventDefault(); store.del("gist"); store.del("token"); S.gist = S.token = null; showSetup(); };
+$("logout").onclick = (e) => {
+	e.preventDefault();
+	store.del("gist"); store.del("token"); S.gist = S.token = null;
+	if (window.HomeNetApp) HomeNetApp.clearGist();
+	showSetup();
+};
 document.addEventListener("visibilitychange", () => { if (!document.hidden && S.gist) refresh(); });
 
 if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
