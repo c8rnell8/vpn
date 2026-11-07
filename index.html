@@ -2,10 +2,16 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>Домашний VPN</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+<meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Дом. сеть">
+<title>Домашняя сеть</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
 :root {
 	--bg: #f4f5f7; --card: #ffffff; --text: #1b1d22; --muted: #6b7280; --line: #e3e5e9;
@@ -17,19 +23,22 @@
 		--accent: #5b8cff; --good: #3ccf7f; --warn: #f0b429; --bad: #ff6b6b; --chip: #232730;
 	}
 }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-main { max-width: 680px; margin: 0 auto; padding: 18px 16px 48px; }
-h1 { font-size: 22px; margin: 4px 0 16px; display: flex; align-items: center; gap: 10px; }
-h1 .ro { margin-left: auto; font-size: 12px; font-weight: 500; }
-h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 26px 0 8px; }
+main { max-width: 680px; margin: 0 auto; padding: calc(14px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom)); }
+header { display: flex; align-items: center; gap: 10px; margin: 4px 0 14px; }
+header h1 { font-size: 21px; margin: 0; }
+header .dot { margin-left: auto; }
+h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 24px 0 8px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.card + .card { margin-top: 8px; }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .muted { color: var(--muted); font-size: 13px; }
 .big { font-size: 19px; font-weight: 650; }
 .good { color: var(--good); } .warn { color: var(--warn); } .bad { color: var(--bad); }
-.dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
-.bg-good { background: var(--good); } .bg-warn { background: var(--warn); } .bg-bad { background: var(--bad); }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex: none; display: inline-block; }
+.dot.sm { width: 8px; height: 8px; }
+.bg-good { background: var(--good); } .bg-warn { background: var(--warn); } .bg-bad { background: var(--bad); } .bg-off { background: var(--line); }
 ul { list-style: none; margin: 0; padding: 0; }
 .list { padding: 0; }
 .list li { padding: 12px 16px; border-top: 1px solid var(--line); }
@@ -40,14 +49,14 @@ ul { list-style: none; margin: 0; padding: 0; }
 .tag.now { color: var(--accent); }
 .ms { font-variant-numeric: tabular-nums; font-size: 14px; white-space: nowrap; }
 .right { display: flex; align-items: center; gap: 8px; flex: none; }
-button, .btn {
+button, .btn, select {
 	appearance: none; border: 0; border-radius: 10px; padding: 11px 14px; font: inherit; font-weight: 600; cursor: pointer;
 	background: var(--accent); color: #fff; text-decoration: none; display: inline-block; text-align: center;
 }
-button.secondary, .btn.secondary { background: var(--chip); color: var(--text); }
+button.secondary, .btn.secondary, select { background: var(--chip); color: var(--text); }
 button.danger { background: var(--chip); color: var(--bad); }
-button.small { padding: 6px 10px; font-size: 13px; border-radius: 8px; }
-button:disabled { opacity: .5; cursor: default; }
+button.small, select.small { padding: 6px 10px; font-size: 13px; border-radius: 8px; }
+button:disabled, select:disabled { opacity: .5; cursor: default; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
 .buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .buttons > * { flex: 1 1 140px; }
@@ -62,24 +71,34 @@ label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px
 .ev time { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 13px; padding-top: 1px; }
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14px; }
 .kv span:nth-child(odd) { color: var(--muted); }
-.switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.sep { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.pending { margin-top: 12px; font-size: 14px; }
+nav {
+	position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; justify-content: center;
+	background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom);
+}
+nav button {
+	flex: 1; max-width: 170px; background: none; color: var(--muted); border-radius: 0; padding: 8px 4px 10px;
+	font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+nav button span { font-size: 20px; line-height: 1.2; }
+nav button.active { color: var(--accent); }
 #toast {
-	position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); max-width: calc(100% - 32px);
+	position: fixed; left: 50%; bottom: calc(80px + env(safe-area-inset-bottom)); transform: translateX(-50%); max-width: calc(100% - 32px);
 	background: var(--text); color: var(--bg); padding: 12px 16px; border-radius: 12px; font-size: 14px;
 	box-shadow: 0 8px 24px rgba(0,0,0,.25); z-index: 10;
 }
-.pending { margin-top: 12px; font-size: 14px; }
 footer { margin-top: 30px; text-align: center; }
 footer a { color: var(--muted); font-size: 13px; }
 </style>
 </head>
 <body>
 <main>
-	<h1>🛡️ Домашний VPN <span class="ro muted hidden" id="ro-badge">только просмотр</span></h1>
+	<header><h1>🛡️ Домашняя сеть</h1><span class="muted hidden" id="ro-badge">просмотр</span><span class="dot" id="head-dot"></span></header>
 
 	<section id="setup" class="card hidden">
 		<div class="big">Вход</div>
-		<p class="muted">Данные сохраняются только в этом браузере. Без токена сайт работает в режиме просмотра.</p>
+		<p class="muted">Данные сохраняются только на этом устройстве. Без токена — только просмотр.</p>
 		<form id="setup-form">
 			<label for="gist-input">ID Gist</label>
 			<input id="gist-input" placeholder="например 0123456789abcdef0123456789abcdef" autocomplete="off" spellcheck="false">
@@ -90,7 +109,7 @@ footer a { color: var(--muted); font-size: 13px; }
 		<div id="setup-err" class="err hidden"></div>
 	</section>
 
-	<section id="app" class="hidden">
+	<div id="app" class="hidden">
 		<div class="card">
 			<div class="row">
 				<div>
@@ -103,67 +122,112 @@ footer a { color: var(--muted); font-size: 13px; }
 			<div class="pending hidden" id="pending"></div>
 		</div>
 
-		<div id="controls">
-			<h2>Управление</h2>
-			<div class="card">
-				<div class="grid">
-					<button data-cmd="reselect">⚡ Подобрать лучший сервер</button>
-					<button data-cmd="update" class="secondary">🔄 Обновить подписки</button>
-					<button data-cmd="restart" class="secondary">♻️ Перезапустить VPN</button>
-					<button data-cmd="rollback" class="secondary" data-confirm="Вернуть последние настройки, на которых VPN работал?">↩️ Откатить настройки</button>
-					<button data-cmd="reboot" class="danger" data-confirm="Перезагрузить роутер? Интернет пропадёт примерно на 3 минуты.">🔁 Перезагрузить роутер</button>
-				</div>
-				<div class="switch">
-					<div>
-						<div class="name">Резерв из бесплатных серверов</div>
-						<div class="muted">Используется, только если все платные серверы не работают</div>
+		<!-- ── VPN -->
+		<section data-tab="vpn">
+			<div class="ctl">
+				<h2>Управление VPN</h2>
+				<div class="card">
+					<div class="grid">
+						<button data-cmd="reselect">⚡ Подобрать лучший сервер</button>
+						<button data-cmd="update" class="secondary">🔄 Обновить подписки</button>
+						<button data-cmd="restart" class="secondary">♻️ Перезапустить VPN</button>
+						<button data-cmd="speedtest" class="secondary">🚀 Тест скорости</button>
 					</div>
-					<button class="small secondary" id="free-btn">—</button>
+					<div class="muted" id="speed" style="margin-top:10px"></div>
+					<div class="row sep">
+						<div>
+							<div class="name">Резерв из бесплатных серверов</div>
+							<div class="muted">Используется, только если все платные не работают</div>
+						</div>
+						<button class="small secondary" id="free-btn">—</button>
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<h2>Серверы</h2>
-		<div class="card list"><ul id="nodes"></ul></div>
-		<p class="muted" id="nodes-note"></p>
+			<h2>Серверы</h2>
+			<div class="card list"><ul id="nodes"></ul></div>
+			<p class="muted" id="nodes-note"></p>
 
-		<h2>Подписки</h2>
-		<div class="card list"><ul id="subs"></ul></div>
-		<form id="add-form" class="card" style="margin-top:8px">
-			<label for="sub-input" style="margin-top:0">Добавить подписку — вставьте ссылку от провайдера VPN</label>
-			<input id="sub-input" placeholder="https://…" autocomplete="off" spellcheck="false">
-			<div class="buttons"><button type="submit">Добавить</button></div>
-		</form>
+			<h2>Подписки</h2>
+			<div class="card list"><ul id="subs"></ul></div>
+			<form id="add-form" class="card ctl">
+				<label for="sub-input" style="margin-top:0">Добавить подписку — ссылка от провайдера VPN</label>
+				<input id="sub-input" placeholder="https://…" autocomplete="off" spellcheck="false">
+				<div class="buttons"><button type="submit">Добавить</button></div>
+			</form>
 
-		<h2>Подписка для Happ</h2>
-		<div class="card">
-			<div class="muted">Одна ссылка на все платные серверы. Пункт «⚡ Авто» сам выбирает лучший.</div>
-			<div class="buttons">
-				<a class="btn" id="happ-btn">Добавить в Happ</a>
-				<button class="secondary" id="copy-btn" type="button">Скопировать</button>
-				<button class="secondary" id="qr-btn" type="button">QR-код</button>
+			<h2>Подписка для Happ</h2>
+			<div class="card">
+				<div class="muted">Одна ссылка на все платные серверы. Пункт «⚡ Авто» сам выбирает лучший.</div>
+				<div class="buttons">
+					<a class="btn" id="happ-btn">Добавить в Happ</a>
+					<button class="secondary" id="copy-btn" type="button">Скопировать</button>
+					<button class="secondary" id="qr-btn" type="button">QR-код</button>
+				</div>
+				<div id="qr" class="hidden"></div>
+				<div class="link hidden" id="link"></div>
 			</div>
-			<div id="qr" class="hidden"></div>
-			<div class="link hidden" id="link"></div>
-		</div>
+		</section>
 
-		<h2>Журнал роутера</h2>
-		<div class="card list"><ul id="events"></ul></div>
+		<!-- ── Сеть -->
+		<section data-tab="net" class="hidden">
+			<h2>Wi‑Fi Xiaomi</h2>
+			<div id="wifi"></div>
+			<div class="buttons ctl"><button class="secondary" data-cmd="wifi" data-arg="restart">📶 Перезапустить Wi‑Fi</button></div>
+			<p class="muted">Имя и пароль сети с сайта не меняются — чтобы случайно не отключить всех домашних.</p>
 
-		<h2>Роутер</h2>
-		<div class="card"><div class="kv" id="system"></div></div>
+			<h2>Устройства</h2>
+			<div class="card list"><ul id="devices"></ul></div>
+			<p class="muted">Устройства в сети Xiaomi (через VPN). Устройства в сети Archer видны в приложении Tether.</p>
+		</section>
 
-		<footer><a href="#" id="logout">Выйти (забыть данные на этом устройстве)</a></footer>
-	</section>
+		<!-- ── Роутеры -->
+		<section data-tab="routers" class="hidden">
+			<h2>Xiaomi · VPN-роутер</h2>
+			<div class="card">
+				<div class="kv" id="system"></div>
+				<div class="grid sep ctl">
+					<button data-cmd="rollback" class="secondary" data-confirm="Вернуть последние настройки, на которых VPN работал?">↩️ Откатить настройки</button>
+					<button data-cmd="reboot" class="danger" data-confirm="Перезагрузить Xiaomi? Интернет в его сети пропадёт примерно на 3 минуты.">🔁 Перезагрузить</button>
+				</div>
+			</div>
+
+			<h2>TP-Link Archer · основной роутер</h2>
+			<div class="card">
+				<div class="kv" id="archer"></div>
+				<div class="buttons">
+					<a class="btn" id="tether-btn">Открыть Tether</a>
+					<a class="btn secondary" href="http://192.168.0.1" target="_blank" rel="noopener">Веб-настройки (из дома)</a>
+				</div>
+				<p class="muted" style="margin-bottom:0">Настройки Archer — в официальном приложении TP-Link Tether: оно работает и вне дома через облако TP-Link.</p>
+			</div>
+		</section>
+
+		<!-- ── Журнал -->
+		<section data-tab="log" class="hidden">
+			<h2>Журнал Xiaomi</h2>
+			<div class="card list"><ul id="events"></ul></div>
+			<footer><a href="#" id="logout">Выйти (забыть данные на этом устройстве)</a></footer>
+		</section>
+	</div>
 	<div id="toast" class="hidden"></div>
 </main>
+
+<nav id="nav" class="hidden">
+	<button data-go="vpn" class="active"><span>🛡️</span>VPN</button>
+	<button data-go="net"><span>📶</span>Сеть</button>
+	<button data-go="routers"><span>🖧</span>Роутеры</button>
+	<button data-go="log"><span>📜</span>Журнал</button>
+</nav>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
 const USER = "c8rnell8";
 const $ = (id) => document.getElementById(id);
 const S = { gist: null, token: null, status: null, pending: null, timer: null };
-const LOCKABLE = "#controls button, .node-btn, .sub-del, #add-form button";
+const LOCKABLE = ".ctl button, .ctl select, .node-btn, .sub-del, #free-btn, .wifi-ctl";
+// Имена для устройств без имени — по производителю (первые 3 байта MAC)
+const VENDORS = { "90:3c:1d": "Hisense ТВ", "38:8c:50": "LG ТВ" };
 
 const store = {
 	get(k) { try { return localStorage.getItem("vpn-" + k); } catch (e) { return null; } },
@@ -200,6 +264,16 @@ const fmtDate = (ts) => new Date(ts * 1000).toLocaleDateString("ru-RU");
 const msClass = (ms) => ms == null ? "bad" : ms < 700 ? "good" : ms < 1500 ? "warn" : "bad";
 const rawUrl = (file) => `https://gist.githubusercontent.com/${USER}/${S.gist}/raw/${file}`;
 const lock = (on) => document.querySelectorAll(LOCKABLE).forEach((b) => (b.disabled = on));
+const kv = (box, rows) => { box.innerHTML = ""; for (const [k, v] of rows) box.append(el("span", null, k), el("span", null, v)); };
+
+// ── вкладки
+function go(tab) {
+	document.querySelectorAll("[data-tab]").forEach((s) => s.classList.toggle("hidden", s.dataset.tab !== tab));
+	document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("active", b.dataset.go === tab));
+	store.set("tab", tab);
+	window.scrollTo(0, 0);
+}
+document.querySelectorAll("nav button").forEach((b) => (b.onclick = () => go(b.dataset.go)));
 
 // ── GitHub API
 async function api(method, body) {
@@ -275,31 +349,15 @@ function checkPending(status) {
 }
 
 // ── отрисовка
-function render(st) {
-	const now = Date.now() / 1000;
+function renderVpn(st, now) {
 	const paid = st.nodes.filter((n) => n.group !== "free");
 	const alive = paid.filter((n) => n.ms != null).length;
-	const stale = now - st.updated > 45 * 60;
-	const ok = st.vpn && st.vpn.ok;
 
-	$("vpn-state").textContent = stale ? "Роутер не на связи" : ok ? "VPN работает" : "VPN не работает";
-	$("vpn-state").className = "big " + (stale || !ok ? "bad" : "good");
-	$("state-dot").className = "dot " + (stale || !ok ? "bg-bad" : alive > 1 ? "bg-good" : "bg-warn");
-	const detail = [];
-	if (st.current) detail.push("Сервер: " + st.current);
-	if (st.pinned) detail.push("📌 закреплён");
-	if (st.vpn && st.vpn.loc) detail.push(`выход: ${st.vpn.loc}${st.vpn.ip ? " · " + st.vpn.ip : ""}`);
-	if (!ok && st.vpn && st.vpn.down_since) detail.push("не работает " + ago(st.vpn.down_since).replace(" назад", ""));
-	$("vpn-detail").textContent = detail.join(" · ");
-	$("heartbeat").textContent = `Роутер на связи ${ago(st.updated)}` + (st.checked ? ` · серверы проверены ${ago(st.checked)}` : "") +
-		(stale ? " — данные могут быть устаревшими" : "");
-
-	// резерв
 	const fb = $("free-btn");
 	fb.textContent = st.free ? "Включён — выключить" : "Выключен — включить";
 	fb.onclick = () => sendCommand("free", st.free ? "off" : "on", st.free ? "Выключаем резерв" : "Включаем резерв");
+	$("speed").textContent = st.speed ? `Последний тест: ${st.speed.mbps} Мбит/с через «${st.speed.node}», ${ago(st.speed.t)}` : "";
 
-	// серверы
 	const ul = $("nodes");
 	ul.innerHTML = "";
 	for (const n of st.nodes) {
@@ -324,7 +382,6 @@ function render(st) {
 	$("nodes-note").textContent = `Работают из дома: ${alive} платных из ${paid.length}. ` +
 		"«Не отвечает» — недоступен через домашнего провайдера; с мобильной сети в Happ может работать.";
 
-	// подписки
 	const subs = $("subs");
 	subs.innerHTML = "";
 	for (const s of st.subs) {
@@ -346,35 +403,115 @@ function render(st) {
 		}
 		subs.append(li);
 	}
+}
 
-	// журнал
+function renderNet(st) {
+	const live = st.live || {};
+	const box = $("wifi");
+	box.innerHTML = "";
+	for (const w of live.wifi || []) {
+		const card = el("div", "card");
+		const head = el("div", "row");
+		const left = el("div");
+		left.append(el("span", "name", `${w.band} ГГц`), el("span", "chip", w.ssid || "—"));
+		left.append(el("div", "muted", w.enabled ? `Включён · канал ${w.channel} · подключено: ${w.clients}` : "Выключен"));
+		head.append(left, el("span", "dot " + (w.enabled ? "bg-good" : "bg-off")));
+		card.append(head);
+		if (S.token) {
+			const ctl = el("div", "buttons");
+			const toggle = el("button", "small secondary wifi-ctl", w.enabled ? "Выключить" : "Включить");
+			toggle.onclick = () => (w.enabled ? confirm(`Выключить Wi‑Fi ${w.band} ГГц? Устройства на нём переподключатся к другому диапазону.`) : true) &&
+				sendCommand("wifi", `${w.radio}:${w.enabled ? "off" : "on"}`, `Wi‑Fi ${w.band} ГГц`);
+			const sel = el("select", "small wifi-ctl");
+			const chans = w.band === "2.4" ? ["auto", 1, 6, 11, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13] : ["auto", 36, 40, 44, 48, 149, 153, 157, 161, 165];
+			for (const c of chans) {
+				const o = el("option", null, c === "auto" ? "канал: авто" : `канал ${c}`);
+				o.value = c;
+				if (String(c) === String(w.channel)) o.selected = true;
+				sel.append(o);
+			}
+			sel.onchange = () => confirm(`Сменить канал ${w.band} ГГц на ${sel.value}? Wi‑Fi пропадёт на несколько секунд.`)
+				? sendCommand("wifi", `${w.radio}:ch:${sel.value}`, `Канал ${w.band} ГГц`)
+				: (sel.value = w.channel);
+			ctl.append(toggle, sel);
+			card.append(ctl);
+		}
+		box.append(card);
+	}
+
+	const ul = $("devices");
+	ul.innerHTML = "";
+	for (const d of live.devices || []) {
+		const li = el("li", "row");
+		const left = el("div");
+		left.append(el("span", "dot sm " + (d.online ? "bg-good" : "bg-off")), document.createTextNode(" "),
+			el("span", "name", d.name || VENDORS[d.vendor] || "Без имени"));
+		left.append(el("div", "muted", `${d.ip} · ${d.link}${d.online ? "" : " · не в сети"}`));
+		const right = el("div", "right");
+		if (d.signal != null) right.append(el("span", "ms " + (d.signal > -65 ? "good" : d.signal > -75 ? "warn" : "bad"),
+			d.signal > -65 ? "сигнал хороший" : d.signal > -75 ? "сигнал средний" : "сигнал слабый"));
+		li.append(left, right);
+		ul.append(li);
+	}
+	if (!ul.children.length) ul.append(el("li", "muted", "Нет данных"));
+}
+
+function renderRouters(st) {
+	const sys = st.system || {};
+	kv($("system"), [
+		["Состояние", st.vpn && st.vpn.ok ? "VPN работает" : "VPN не работает"],
+		["Без перезагрузки", sys.uptime ? dur(sys.uptime) : "—"],
+		["Свободно памяти", sys.mem_mb != null ? sys.mem_mb + " МБ" : "—"],
+		["Свободно флеша", sys.flash_free || "—"],
+		["Нагрузка", sys.load || "—"],
+		["Рабочие настройки", sys.good_config ? "сохранены " + fmtTime(sys.good_config) : "не сохранены"],
+	]);
+	const a = (st.live || {}).archer || {};
+	kv($("archer"), [
+		["Адрес", a.ip || "192.168.0.1"],
+		["Связь с Xiaomi", a.ping != null ? `есть · ${Math.round(a.ping * 10) / 10} мс` : "нет ответа"],
+		["Интернет от провайдера", a.isp_ping != null ? `есть · ${Math.round(a.isp_ping)} мс` : "нет"],
+	]);
+}
+
+function render(st) {
+	const now = Date.now() / 1000;
+	const stale = now - st.updated > 45 * 60;
+	const ok = st.vpn && st.vpn.ok;
+	const alive = st.nodes.filter((n) => n.ms != null && n.group !== "free").length;
+	const cls = stale || !ok ? "bg-bad" : alive > 1 ? "bg-good" : "bg-warn";
+
+	$("vpn-state").textContent = stale ? "Роутер не на связи" : ok ? "VPN работает" : "VPN не работает";
+	$("vpn-state").className = "big " + (stale || !ok ? "bad" : "good");
+	$("state-dot").className = "dot " + cls;
+	$("head-dot").className = "dot " + cls;
+	const detail = [];
+	if (st.current) detail.push("Сервер: " + st.current);
+	if (st.pinned) detail.push("📌 закреплён");
+	if (st.vpn && st.vpn.loc) detail.push(`выход: ${st.vpn.loc}${st.vpn.ip ? " · " + st.vpn.ip : ""}`);
+	if (!ok && st.vpn && st.vpn.down_since) detail.push("не работает " + ago(st.vpn.down_since).replace(" назад", ""));
+	$("vpn-detail").textContent = detail.join(" · ");
+	$("heartbeat").textContent = `Роутер на связи ${ago(st.updated)}` + (st.checked ? ` · серверы проверены ${ago(st.checked)}` : "") +
+		(stale ? " — данные могут быть устаревшими" : "");
+
+	renderVpn(st, now);
+	renderNet(st);
+	renderRouters(st);
+
 	const ev = $("events");
 	ev.innerHTML = "";
-	for (const e of (st.events || []).slice(0, 25)) {
+	for (const e of (st.events || []).slice(0, 40)) {
 		const li = el("li", "ev");
 		li.append(el("time", null, fmtTime(e.t)), el("span", null, e.text));
 		ev.append(li);
 	}
 	if (!ev.children.length) ev.append(el("li", "muted", "Пока пусто"));
 
-	// система
-	const sys = st.system || {};
-	const kv = $("system");
-	kv.innerHTML = "";
-	const rows = [
-		["Без перезагрузки", sys.uptime ? dur(sys.uptime) : "—"],
-		["Свободно памяти", sys.mem_mb != null ? sys.mem_mb + " МБ" : "—"],
-		["Свободно флеша", sys.flash_free || "—"],
-		["Нагрузка", sys.load || "—"],
-		["Рабочие настройки сохранены", sys.good_config ? fmtTime(sys.good_config) : "нет"],
-	];
-	for (const [k, v] of rows) kv.append(el("span", null, k), el("span", null, v));
-
 	checkPending(st);
 	if (S.pending) showPending();
 }
 
-function setupHapp() {
+function setupLinks() {
 	const sub = rawUrl("sub.json");
 	$("link").textContent = sub;
 	$("happ-btn").href = "happ://add/" + sub;
@@ -392,6 +529,12 @@ function setupHapp() {
 		box.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0 });
 		$("link").classList.remove("hidden");
 	};
+	// Tether: на Android — приложение (или Google Play), на iPhone — App Store
+	const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+	$("tether-btn").href = ios
+		? "https://apps.apple.com/app/tp-link-tether/id599496594"
+		: "intent://#Intent;package=com.tplink.tether;S.browser_fallback_url=" +
+			encodeURIComponent("https://play.google.com/store/apps/details?id=com.tplink.tether") + ";end";
 }
 
 async function refresh() {
@@ -424,12 +567,13 @@ async function login(gist, token) {
 		token ? store.set("token", token) : store.del("token");
 		$("setup").classList.add("hidden");
 		$("app").classList.remove("hidden");
+		$("nav").classList.remove("hidden");
 		$("ro-badge").classList.toggle("hidden", !!S.token);
-		$("controls").classList.toggle("hidden", !S.token);
-		$("add-form").classList.toggle("hidden", !S.token);
-		setupHapp();
+		document.querySelectorAll(".ctl").forEach((e) => e.classList.toggle("hidden", !S.token));
+		setupLinks();
 		S.status = status;
 		render(status);
+		go(store.get("tab") || "vpn");
 		poll(60000);
 	} catch (e) {
 		S.gist = S.token = null;
@@ -440,6 +584,7 @@ async function login(gist, token) {
 function showSetup(err) {
 	clearInterval(S.timer);
 	$("app").classList.add("hidden");
+	$("nav").classList.add("hidden");
 	$("setup").classList.remove("hidden");
 	$("setup-err").textContent = err || "";
 	$("setup-err").classList.toggle("hidden", !err);
@@ -453,11 +598,14 @@ $("add-form").onsubmit = (e) => {
 	$("sub-input").value = "";
 	sendCommand("add_sub", url, "Добавляем подписку");
 };
-document.querySelectorAll("#controls [data-cmd]").forEach((b) => {
-	b.onclick = () => (!b.dataset.confirm || confirm(b.dataset.confirm)) && sendCommand(b.dataset.cmd, "", b.textContent.replace(/^\S+\s/, ""));
+document.querySelectorAll("[data-cmd]").forEach((b) => {
+	b.onclick = () => (!b.dataset.confirm || confirm(b.dataset.confirm)) &&
+		sendCommand(b.dataset.cmd, b.dataset.arg || "", b.textContent.replace(/^\S+\s/, ""));
 });
 $("logout").onclick = (e) => { e.preventDefault(); store.del("gist"); store.del("token"); S.gist = S.token = null; showSetup(); };
 document.addEventListener("visibilitychange", () => { if (!document.hidden && S.gist) refresh(); });
+
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
 
 // ID можно передать после # (не уходит на сервер)
 const fromHash = location.hash.slice(1);
