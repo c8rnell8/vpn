@@ -1,4 +1,12 @@
 {
-	"version": 1,
-	"accounts": []
+ "version": 1,
+ "accounts": [
+  {
+   "id": "aec75e05cf87d71ac24c77dc1a4eda3214e4af807f90ff149fddfeb4578e7e78",
+   "salt": "beTY43EapBXXA4+ySDFA5A==",
+   "iv": "dQU+YqPnnSoSEOSf",
+   "ct": "vcoCWT2QchEh4WbQFu9Kqpuk2tS/nwck/CeS6owp9DCuUugys5JI/f+i89RM07GGpF3oxlN2HpO00wkdtfm9dHLTSSy6QNskdI70iXboOJK81fEEe+6Da2zaKYciJCIg+80J0qk5C5R/nOySLnA1J4Dd2pBOya4lOS39eX2gDxmEoAsdABh8jzdiXKR4iGP7ccpQtNHOxopXutMOyDTy+o2j8w==",
+   "role": "admin"
+  }
+ ]
 }
