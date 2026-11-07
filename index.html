@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Домашний VPN</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+<style>
+:root {
+	--bg: #f4f5f7; --card: #ffffff; --text: #1b1d22; --muted: #6b7280; --line: #e3e5e9;
+	--accent: #2f6fed; --good: #1a9e55; --warn: #c98a00; --bad: #d23c3c; --chip: #eef1f5;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #0f1115; --card: #181b21; --text: #e8eaee; --muted: #9097a3; --line: #2a2e36;
+		--accent: #5b8cff; --good: #3ccf7f; --warn: #f0b429; --bad: #ff6b6b; --chip: #232730;
+	}
+}
+* { box-sizing: border-box; }
+body {
+	margin: 0; background: var(--bg); color: var(--text);
+	font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 640px; margin: 0 auto; padding: 20px 16px 40px; }
+h1 { font-size: 22px; margin: 4px 0 16px; display: flex; align-items: center; gap: 10px; }
+h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 24px 0 8px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.muted { color: var(--muted); font-size: 13px; }
+.big { font-size: 18px; font-weight: 600; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.good { color: var(--good); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+.bg-good { background: var(--good); } .bg-warn { background: var(--warn); } .bg-bad { background: var(--bad); }
+ul { list-style: none; margin: 0; padding: 0; }
+li { padding: 12px 16px; border-top: 1px solid var(--line); }
+li:first-child { border-top: none; }
+.list { padding: 0; }
+.name { font-weight: 500; overflow-wrap: anywhere; }
+.chip { background: var(--chip); border-radius: 6px; padding: 1px 7px; font-size: 12px; color: var(--muted); margin-left: 6px; }
+.ms { font-variant-numeric: tabular-nums; font-size: 14px; white-space: nowrap; }
+.now { font-size: 12px; color: var(--accent); font-weight: 600; margin-left: 6px; }
+button, .btn {
+	appearance: none; border: 0; border-radius: 10px; padding: 11px 16px; font: inherit; font-weight: 600;
+	cursor: pointer; background: var(--accent); color: #fff; text-decoration: none; display: inline-block; text-align: center;
+}
+.btn.secondary, button.secondary { background: var(--chip); color: var(--text); }
+.buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.buttons > * { flex: 1 1 140px; }
+input {
+	width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line);
+	background: var(--bg); color: var(--text); font: inherit;
+}
+#qr { display: flex; justify-content: center; margin-top: 14px; }
+#qr img, #qr svg { background: #fff; padding: 10px; border-radius: 12px; width: 220px; height: 220px; image-rendering: pixelated; }
+.hidden { display: none !important; }
+.link { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; margin-top: 8px; }
+.err { color: var(--bad); margin-top: 10px; }
+footer { margin-top: 28px; text-align: center; }
+footer a { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+	<h1>🛡️ Домашний VPN</h1>
+
+	<section id="setup" class="card hidden">
+		<div class="big">Вход</div>
+		<p class="muted">Введите ID вашего Gist. Он сохранится только в этом браузере.</p>
+		<form id="setup-form">
+			<input id="gist-input" placeholder="например 0123456789abcdef0123456789abcdef" autocomplete="off" spellcheck="false">
+			<div class="buttons"><button type="submit">Открыть</button></div>
+		</form>
+		<div id="setup-err" class="err hidden"></div>
+	</section>
+
+	<section id="app" class="hidden">
+		<div class="card">
+			<div class="row">
+				<div>
+					<div class="muted">Роутер сейчас на сервере</div>
+					<div class="big" id="current">—</div>
+				</div>
+				<span class="dot" id="state-dot"></span>
+			</div>
+			<div class="muted" id="updated" style="margin-top:8px"></div>
+		</div>
+
+		<h2>Серверы</h2>
+		<div class="card list"><ul id="nodes"></ul></div>
+		<p class="muted">Задержка измерена роутером из дома. «Не отвечает» — сервер недоступен через домашнего провайдера; с мобильной сети он может работать, Happ проверит сам.</p>
+
+		<h2>Подписка для Happ</h2>
+		<div class="card">
+			<div class="muted">Одна ссылка на все серверы. В ней пункт «⚡ Авто» сам выбирает лучший сервер.</div>
+			<div class="buttons">
+				<a class="btn" id="happ-btn">Добавить в Happ</a>
+				<button class="secondary" id="copy-btn" type="button">Скопировать ссылку</button>
+				<button class="secondary" id="qr-btn" type="button">QR-код</button>
+			</div>
+			<div id="qr" class="hidden"></div>
+			<div class="link hidden" id="link"></div>
+		</div>
+
+		<footer><a href="#" id="logout">Выйти (забыть ID на этом устройстве)</a></footer>
+	</section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+const KEY = "vpn-gist-id";
+const USER = "c8rnell8";
+const $ = (id) => document.getElementById(id);
+
+function store(op, value) {
+	try {
+		if (op === "get") return localStorage.getItem(KEY);
+		if (op === "set") localStorage.setItem(KEY, value);
+		if (op === "del") localStorage.removeItem(KEY);
+	} catch (e) { /* приватный режим — живём без памяти */ }
+	return null;
+}
+
+function rawUrl(id, file) { return `https://gist.githubusercontent.com/${USER}/${id}/raw/${file}`; }
+
+function ago(ts) {
+	const min = Math.round((Date.now() / 1000 - ts) / 60);
+	if (min < 1) return "только что";
+	if (min < 60) return `${min} мин назад`;
+	const h = Math.floor(min / 60);
+	return h < 24 ? `${h} ч ${min % 60} мин назад` : `${Math.floor(h / 24)} дн назад`;
+}
+
+function msClass(ms) { return ms == null ? "bad" : ms < 700 ? "good" : ms < 1500 ? "warn" : "bad"; }
+
+function render(status, id) {
+	const alive = status.nodes.filter((n) => n.ms != null).length;
+	const stale = Date.now() / 1000 - status.updated > 3 * 3600;
+	$("current").textContent = status.current || "—";
+	$("state-dot").className = "dot " + (stale || alive === 0 ? "bg-bad" : alive === 1 ? "bg-warn" : "bg-good");
+	$("updated").innerHTML = `Обновлено ${ago(status.updated)} · работает из дома: <b class="${alive ? "good" : "bad"}">${alive} из ${status.nodes.length}</b>` +
+		(stale ? ` · <span class="bad">роутер давно не присылал статус</span>` : "");
+
+	const ul = $("nodes");
+	ul.innerHTML = "";
+	for (const n of status.nodes) {
+		const li = document.createElement("li");
+		li.className = "row";
+		const left = document.createElement("div");
+		const name = document.createElement("span");
+		name.className = "name";
+		name.textContent = n.name;
+		left.append(name);
+		if (n.group) { const c = document.createElement("span"); c.className = "chip"; c.textContent = n.group; left.append(c); }
+		if (n.current) { const c = document.createElement("span"); c.className = "now"; c.textContent = "● сейчас"; left.append(c); }
+		const ms = document.createElement("span");
+		ms.className = "ms " + msClass(n.ms);
+		ms.textContent = n.ms == null ? "не отвечает" : `${n.ms} мс`;
+		li.append(left, ms);
+		ul.append(li);
+	}
+
+	const sub = rawUrl(id, "sub.json");
+	$("link").textContent = sub;
+	$("happ-btn").href = "happ://add/" + sub;
+	$("copy-btn").onclick = async () => {
+		try { await navigator.clipboard.writeText(sub); $("copy-btn").textContent = "Скопировано ✓"; }
+		catch (e) { $("link").classList.remove("hidden"); $("copy-btn").textContent = "Скопируйте вручную ↓"; }
+		setTimeout(() => ($("copy-btn").textContent = "Скопировать ссылку"), 2500);
+	};
+	$("qr-btn").onclick = () => {
+		const box = $("qr");
+		if (box.classList.toggle("hidden")) return;
+		if (typeof qrcode === "undefined") { box.textContent = "Не удалось загрузить генератор QR."; return; }
+		const qr = qrcode(0, "M");
+		qr.addData(sub);
+		qr.make();
+		box.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0 });
+		$("link").classList.remove("hidden");
+	};
+}
+
+async function loadGist(id) {
+	id = (id || "").trim().replace(/^.*\//, "").replace(/[^0-9a-f]/gi, "");
+	if (!/^[0-9a-f]{20,40}$/i.test(id)) return showSetup("Похоже, это не ID Gist.");
+	try {
+		const r = await fetch(rawUrl(id, "status.json") + "?t=" + Date.now(), { cache: "no-store" });
+		if (!r.ok) throw new Error(r.status);
+		const status = await r.json();
+		store("set", id);
+		$("setup").classList.add("hidden");
+		$("app").classList.remove("hidden");
+		render(status, id);
+	} catch (e) {
+		showSetup("Не получилось загрузить статус. Проверьте ID и что роутер уже прислал статус.");
+	}
+}
+
+function showSetup(err) {
+	$("app").classList.add("hidden");
+	$("setup").classList.remove("hidden");
+	$("setup-err").textContent = err || "";
+	$("setup-err").classList.toggle("hidden", !err);
+}
+
+$("setup-form").onsubmit = (e) => { e.preventDefault(); loadGist($("gist-input").value); };
+$("logout").onclick = (e) => { e.preventDefault(); store("del"); history.replaceState(null, "", location.pathname); showSetup(); };
+
+// ID можно передать в адресе после # — он не уходит на сервер
+const fromHash = location.hash.slice(1);
+const saved = fromHash || store("get");
+if (fromHash) history.replaceState(null, "", location.pathname);
+saved ? loadGist(saved) : showSetup();
+</script>
+</body>
+</html>
