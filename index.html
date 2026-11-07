@@ -98,8 +98,14 @@ footer a { color: var(--muted); font-size: 13px; }
 
 	<section id="setup" class="card hidden">
 		<div class="big">Вход</div>
-		<p class="muted">Данные сохраняются только на этом устройстве. Без токена — только просмотр.</p>
-		<form id="setup-form">
+		<form id="pass-form">
+			<label for="login-input">Логин</label>
+			<input id="login-input" autocomplete="username" autocapitalize="none" spellcheck="false">
+			<label for="password-input">Пароль</label>
+			<input id="password-input" type="password" autocomplete="current-password">
+			<div class="buttons"><button type="submit" id="pass-btn">Войти</button></div>
+		</form>
+		<form id="setup-form" class="hidden">
 			<label for="gist-input">ID Gist</label>
 			<input id="gist-input" placeholder="например 0123456789abcdef0123456789abcdef" autocomplete="off" spellcheck="false">
 			<label for="token-input">Токен GitHub (для управления)</label>
@@ -107,6 +113,35 @@ footer a { color: var(--muted); font-size: 13px; }
 			<div class="buttons"><button type="submit">Войти</button></div>
 		</form>
 		<div id="setup-err" class="err hidden"></div>
+		<div class="buttons">
+			<button type="button" class="small secondary" id="mode-btn">Войти по ID Gist и токену</button>
+			<button type="button" class="small secondary" id="create-open">Создать логин и пароль</button>
+		</div>
+	</section>
+
+	<section id="create" class="card hidden">
+		<div class="big">Новый вход</div>
+		<p class="muted">Всё шифруется прямо здесь, в браузере, — на сайт попадает только зашифрованная запись.
+			Без токена получится вход «только просмотр».</p>
+		<form id="create-form">
+			<label for="c-login">Логин</label>
+			<input id="c-login" autocapitalize="none" autocomplete="off" spellcheck="false">
+			<label for="c-pass">Пароль (не короче 8 символов)</label>
+			<input id="c-pass" type="password" autocomplete="new-password">
+			<label for="c-pass2">Пароль ещё раз</label>
+			<input id="c-pass2" type="password" autocomplete="new-password">
+			<label for="c-gist">ID Gist</label>
+			<input id="c-gist" autocomplete="off" spellcheck="false">
+			<label for="c-token">Токен GitHub — только для входа с управлением</label>
+			<input id="c-token" type="password" placeholder="оставьте пустым для «только просмотр»" autocomplete="off" spellcheck="false">
+			<div class="buttons"><button type="submit" id="create-btn">Зашифровать</button><button type="button" class="secondary" id="create-close">Назад</button></div>
+		</form>
+		<div id="create-err" class="err hidden"></div>
+		<div id="create-out" class="hidden">
+			<label>Готовая запись — отправьте этот текст, чтобы её добавили на сайт:</label>
+			<input id="create-entry" readonly>
+			<div class="buttons"><button type="button" id="create-copy">Скопировать</button></div>
+		</div>
 	</section>
 
 	<div id="app" class="hidden">
@@ -592,6 +627,81 @@ function showSetup(err) {
 }
 
 $("setup-form").onsubmit = (e) => { e.preventDefault(); login($("gist-input").value, $("token-input").value); };
+
+// ── Вход по логину и паролю. accounts.json (рядом с сайтом) — записи {id, salt, iv, ct}:
+// id = SHA-256 логина, ct = AES-GCM({gist, token}) ключом PBKDF2(пароль, salt, 600 000). Расшифровка только в браузере.
+const enc = new TextEncoder();
+const b64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+async function loginId(login) {
+	const h = await crypto.subtle.digest("SHA-256", enc.encode("homenet:" + login.trim().toLowerCase()));
+	return Array.from(new Uint8Array(h), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function passKey(password, salt) {
+	const base = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]);
+	return crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 600000, hash: "SHA-256" },
+		base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+
+$("pass-form").onsubmit = async (e) => {
+	e.preventDefault();
+	const btn = $("pass-btn");
+	btn.disabled = true;
+	btn.textContent = "Проверяю…";
+	try {
+		const r = await fetch("accounts.json?t=" + Date.now(), { cache: "no-store" });
+		const list = r.ok ? (await r.json()).accounts || [] : [];
+		const id = await loginId($("login-input").value);
+		const entry = list.find((a) => a.id === id);
+		if (!entry) throw new Error("bad");
+		const key = await passKey($("password-input").value, unb64(entry.salt));
+		const data = JSON.parse(new TextDecoder().decode(
+			await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(entry.iv) }, key, unb64(entry.ct))));
+		$("password-input").value = "";
+		await login(data.gist, data.token || "");
+	} catch (err) {
+		showSetup("Неверный логин или пароль");
+	} finally {
+		btn.disabled = false;
+		btn.textContent = "Войти";
+	}
+};
+$("mode-btn").onclick = () => {
+	const byId = $("pass-form").classList.toggle("hidden");
+	$("setup-form").classList.toggle("hidden", !byId);
+	$("mode-btn").textContent = byId ? "Войти по логину и паролю" : "Войти по ID Gist и токену";
+};
+
+// ── Создание входа: шифруем здесь же, наружу отдаём только запись для accounts.json
+$("create-open").onclick = () => { $("setup").classList.add("hidden"); $("create").classList.remove("hidden"); };
+$("create-close").onclick = () => { $("create").classList.add("hidden"); $("setup").classList.remove("hidden"); };
+$("create-form").onsubmit = async (e) => {
+	e.preventDefault();
+	const err = (t) => { $("create-err").textContent = t; $("create-err").classList.toggle("hidden", !t); };
+	const login = $("c-login").value.trim(), pass = $("c-pass").value;
+	const gist = $("c-gist").value.trim().replace(/^.*\//, ""), token = $("c-token").value.trim();
+	if (!/^[\w.-]{3,40}$/.test(login)) return err("Логин: 3–40 латинских букв, цифр, точек или дефисов");
+	if (pass.length < 8) return err("Пароль слишком короткий");
+	if (pass !== $("c-pass2").value) return err("Пароли не совпадают");
+	if (!/^[0-9a-f]{20,40}$/i.test(gist)) return err("Похоже, это не ID Gist");
+	err("");
+	$("create-btn").disabled = true;
+	try {
+		const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+		const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await passKey(pass, salt),
+			enc.encode(JSON.stringify(token ? { gist, token } : { gist })));
+		$("create-entry").value = JSON.stringify({ id: await loginId(login), salt: b64(salt), iv: b64(iv), ct: b64(ct),
+			role: token ? "admin" : "view" });
+		["c-pass", "c-pass2", "c-token"].forEach((i) => ($(i).value = ""));
+		$("create-out").classList.remove("hidden");
+	} finally {
+		$("create-btn").disabled = false;
+	}
+};
+$("create-copy").onclick = async () => {
+	try { await navigator.clipboard.writeText($("create-entry").value); toast("Скопировано"); }
+	catch (e) { $("create-entry").select(); toast("Выделите и скопируйте вручную"); }
+};
 $("add-form").onsubmit = (e) => {
 	e.preventDefault();
 	const url = $("sub-input").value.trim();
